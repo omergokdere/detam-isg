@@ -54,7 +54,7 @@
           script.remove();
         };
         const script = document.createElement('script');
-        script.src = `${SCRIPT_URL}?action=getRecords&callback=${callbackName}`;
+        script.src = `${SCRIPT_URL}?action=getRecords&callback=${callbackName}&_=${Date.now()}`;
         script.onerror = err => {
           delete window[callbackName];
           reject(err);
