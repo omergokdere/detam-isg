@@ -76,7 +76,8 @@
   
         const exists = records.some(r =>
           r.adSoyad.toLowerCase() === ad.toLowerCase() &&
-          r.telefon.replace(/\D/g,'') === telefon.replace(/\D/g,'')
+          r.telefon.replace(/\D/g,'') === telefon.replace(/\D/g,'') &&
+          r.email.toLowerCase()  === email.toLowerCase()
         );
         if (exists) {
           alert('Bu kullanıcı ödül kazanmış.');
@@ -90,7 +91,6 @@
         window.location.href = 'oyun.html';
   
       } catch (err) {
-        console.error(err);
         console.error('App Script hatası:', err);
         alert('Sunucuya bağlanırken bir sorun oluştu. Lütfen tekrar deneyin.'); 
       }
