@@ -53,10 +53,12 @@
   <br>
   <button id="spin">Çevir!</button>
   <div id="result"></div>
-  <br
+  <br>
+
   <div class="qr-code">
     <p>Detaylı bilgi için QR kodu tarayın:</p>
     <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code" />
+  </div>
 <br>
   <button id="confirmButton">Hediyemi Al</button>
 
@@ -66,9 +68,9 @@
     const ctx = canvas.getContext("2d");
     const w = canvas.width, h = canvas.height;
     const centerX = w/2, centerY = h/2, radius = 180;
-    const segments = 3, degPer = 360/segments;
-    const colors  = ["#f44336","#4CAF50","#2196F3"];
-    const prizes  = ["Tam Check-Up","Göz Ölçüm Testi","Duyma Testi"];
+    const segments = 4, degPer = 360/segments;
+    const colors  = ["#f44336", "#4CAF50", "#2196F3", "#FFEB3B"];
+    const prizes  = ["Karabina","Göz Ölçüm Testi","Duyma Testi", "Kulak Tıkacı"];
     let angle = 0, isSpun = false;
 
     function drawWheel() {
@@ -126,33 +128,27 @@
     document.getElementById("confirmButton").addEventListener("click", async function() {
       const btn = this;
       btn.disabled = true;
+      const ad    = sessionStorage.getItem('ad');
+      const email = sessionStorage.getItem('email');
+      const tel   = sessionStorage.getItem('telefon');
+      const odul  = kazanan;
 
-      try {
         const res = await fetch('https://script.google.com/macros/s/AKfycbxEkcC6abIGwyjwqguW1po214L6_CqzCF5P4_HXAkkeIm6c77t5p36QPDALxiRpM7tmjA/exec', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            adSoyad: sessionStorage.getItem('ad'),
-            email:  sessionStorage.getItem('email'),
-            telefon: sessionStorage.getItem('telefon'),
-            odul:     kazanan
-          })
-        });
+          body: new URLSearchParams({ adSoyad:ad, email:email, telefon:tel, odul:odul })
+  });
 
 
-        await res.text();  // sunucudan OK geldiğini varsayalım
-        alert('Ödülünüzü kaydettik. detam.com.tr’ye yönlendiriliyorsunuz.');
-
-        // 10 saniye sonra yönlendir
-        setTimeout(() => {
-          window.location.href = 'https://detam.com.tr';
-        }, 5000);
-      } catch (err) {
-        console.error(err);
-        alert('Gönderim sırasında bir hata oluştu.');
-        btn.disabled = false;
+  const msg = (await res.text()).trim();
+  if (msg==='OK') {
+    alert('Ödülünüzü kaydettik. detam.com.tr’ye yönlendiriliyorsunuz.');
+    setTimeout(()=>window.location.href='https://detam.com.tr',5000);
+  } else {
+    alert('Hata:'+msg);
+    btn.disabled=false;
       }
-    });
+  });
   </script>
 </body>
 </html>
