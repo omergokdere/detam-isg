@@ -143,10 +143,10 @@
         await res.text();  // sunucudan OK geldiğini varsayalım
         alert('Ödülünüzü kaydettik. detam.com.tr’ye yönlendiriliyorsunuz.');
 
-        // 1 dakika sonra yönlendir
+        // 10 saniye sonra yönlendir
         setTimeout(() => {
           window.location.href = 'https://detam.com.tr';
-        }, 10000);
+        }, 5000);
       } catch (err) {
         console.error(err);
         alert('Gönderim sırasında bir hata oluştu.');
