@@ -114,29 +114,24 @@
       }, 20);
     });
 
-    // "Hediyemi Al" tıklandığında reCAPTCHA + POST + 1 dk sonra yönlendirme
+    // "Hediyemi Al" tıklandığında POST + 1 dk sonra yönlendirme
     document.getElementById("confirmButton").addEventListener("click", async function() {
       const btn = this;
       btn.disabled = true;
-      const token = grecaptcha.getResponse();
-      if (!token) {
-        alert('Lütfen "Ben robot değilim" kutusunu işaretleyin.');
-        btn.disabled = false;
-        return;
-      }
-      const payload = {
-        name:  sessionStorage.getItem('ad'),
-        phone: sessionStorage.getItem('telefon'),
-        email: sessionStorage.getItem('email'),
-        prize: kazanan,
-        'g-recaptcha-response': token
-      };
+
       try {
         const res = await fetch('https://script.google.com/macros/s/AKfycbxEkcC6abIGwyjwqguW1po214L6_CqzCF5P4_HXAkkeIm6c77t5p36QPDALxiRpM7tmjA/exec', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            adSoyad: sessionStorage.getItem('ad'),
+            eposta:  sessionStorage.getItem('email'),
+            telefon: sessionStorage.getItem('telefon'),
+            odul:     kazanan
+          })
         });
+
+
         const msg = await res.text();
         alert(msg);
         // 1 dakika sonra yönlendir
