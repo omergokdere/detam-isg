@@ -91,7 +91,8 @@
   
       } catch (err) {
         console.error(err);
-        alert('Bu kullanıcı ödül kazanmış.');
+        console.error('App Script hatası:', err);
+        alert('Sunucuya bağlanırken bir sorun oluştu. Lütfen tekrar deneyin.'); 
       }
     });
   </script>
