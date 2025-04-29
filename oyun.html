@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>İSG Bilgi Yarışması</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background-color: #f1f1f1; }
+    .quiz-container {
+      background: #f7f7f7; padding: 20px; border-radius: 8px;
+      max-width: 500px; margin: 0 auto; box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .logo { width: 150px; display: block; margin: 0 auto 20px auto; }
+    h1 { text-align: center; }
+    .question-block { margin-bottom: 20px; }
+    .question { font-weight: bold; }
+    .choices label { cursor: pointer; }
+    button {
+      padding: 10px 20px; font-size: 1em; border-radius: 6px;
+      background-color: #007BFF; color: white; border: none; cursor: pointer;
+    }
+    button:hover { background-color: #0056b3; }
+    .qr-code { margin-top: 20px; text-align: center; }
+    .qr-code img { width: 150px; height: 150px; }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <a href="https://www.detam.com.tr/" target="_blank">
+      <img src="detam.jpg" alt="Detam Group Logo" class="logo" />
+    </a>
+    <h1>İSG Bilgi Yarışması</h1>
+    <div id="quiz"></div>
+    <button onclick="submitQuiz()">Gönder</button>
+  </div>
+
+  <script>
+    const quizData = [
+      { question: "Baret hangi amaçla kullanılır?", choices: ["Görüşü artırmak", "Baş koruması", "Ayak kaymasını önlemek", "Gürültüyü azaltmak"], correct: 1 },
+      { question: "Yangın tüpü hangi renktedir?", choices: ["Sarı", "Mavi", "Kırmızı", "Yeşil"], correct: 2 },
+      { question: "Kulak tıkacı ne için kullanılır?", choices: ["İşitmeden korunma", "Gürültü önleme", "Yük kaldırma"], correct: 1 },
+      { question: "Gözlük hangi tür KKD'dir?", choices: ["Solunum", "Düşme önleyici", "Göz koruyucu", "Ayak koruyucu"], correct: 2 },
+      { question: "İSG nedir?", choices: ["İçsel Sağlık Güvencesi", "İleri Seviye Güç", "İşyeri Sistem Gelişimi"], correct: 0 },
+      // ... (toplam 15 soru, örnek olarak 5'i burada gösterdim)
+    ];
+
+    function getRandomQuestions(arr, count) {
+      const shuffled = [...arr].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, count);
+    }
+
+    const selectedQuestions = getRandomQuestions(quizData, 5);
+    const quizContainer = document.getElementById("quiz");
+
+    selectedQuestions.forEach((q, index) => {
+      const block = document.createElement("div");
+      block.className = "question-block";
+      block.innerHTML = `
+        <p class="question">${index + 1}. ${q.question}</p>
+        <div class="choices">
+          ${q.choices.map((c,i) => `<label><input type="radio" name="q${index}" value="${i}" /> ${c}</label><br />`).join('')}
+        </div>
+      `;
+      quizContainer.appendChild(block);
+    });
+
+      function submitQuiz() {
+        let score = 0;
+        selectedQuestions.forEach((q,i) => {
+          const sel = document.querySelector(`input[name=q${i}]:checked`);
+          if (sel && parseInt(sel.value) === q.correct) score++;
+        });
+        if (score === 5) {
+          window.location.href = "success.html";
+        } else {
+          window.location.href = "try-again.html";
+        }
+      }
+  </script>
+</body>
+</html>

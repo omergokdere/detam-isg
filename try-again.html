@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Tekrar Deneyin</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #fff0f0; }
+    .logo { width: 150px; margin-bottom: 20px; }
+    h1 { color: #d00; }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .qr-code {
+    margin-top: 20px;
+  }
+  .qr-code img {
+    width: 150px;
+    height: 150px;
+  }
+  </style>
+</head>
+<body>
+  <img class="logo" src="C:\Users\OG\Desktop\isg_final_with_success_chark_updated-20250409T063820Z-001\test\isg_final_with_success_chark_updated\detam.jpg" alt="Logo" />
+  <h1>Üzgünüz 😥</h1>
+  <p>5'te 5 yapamadınız.</p>
+  <p>Lütfen tekrar deneyin!</p>
+  <button onclick="window.location.href='index.html'">Tekrar Dene</button>
+</body>
+<div class="qr-code">
+  <p>Detaylı bilgi için QR kodu tarayın:</p>
+  <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code" />
+</div>
+</html>

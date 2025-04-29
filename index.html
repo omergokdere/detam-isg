@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Detam Kullanıcı Girişi</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding-top: 40px; background-color: #f7f7f7; }
+    form { background: white; padding: 30px; display: inline-block; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .logo { width: 150px; display: block; margin: 0 auto 20px auto; }
+    .qr-code { margin-top: 20px; }
+    .qr-code img { width: 150px; height: 150px; }
+    input, button {
+      display: block; margin: 10px auto; padding: 10px; width: 250px;
+      font-size: 16px; border-radius: 6px; border: 1px solid #ccc;
+    }
+    button {
+      background-color: #28a745; color: white; cursor: pointer;
+    }
+    button:disabled { background-color: #aaa; cursor: not-allowed; }
+    button:hover:not(:disabled) { background-color: #218838; }
+  </style>
+</head>
+<body>
+  <a href="https://www.detam.com.tr/" target="_blank">
+    <img src="detam.jpg" alt="Detam Group Logo" class="logo" />
+  </a>
+  <h1>İSG Bilgi Yarışması</h1>
+
+  <div class="qr-code">
+    <p>Detaylı bilgi için QR kodu tarayın:</p>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code" />
+  </div>
+
+  <form id="startForm">
+    <input type="text" id="ad" placeholder="Ad Soyad" required>
+    <input type="email" id="email" placeholder="E-posta" required>
+    <input type="tel" id="telefon" placeholder="Telefon" required>
+    <button type="submit" id="startBtn">Oyuna Başla</button>
+  </form>
+
+
+
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxrEUpQOXNWhVg8E_XwHU_sR1q3Ak4hpgLVncOw6Td9/exec'
+    ;
+  
+    // JSONP loader fonksiyonu
+    function loadRecordsJSONP() {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'handleRecords_' + Date.now();
+        window[callbackName] = function(data) {
+          resolve(data);
+          delete window[callbackName];
+          script.remove();
+        };
+        const script = document.createElement('script');
+        script.src = `${SCRIPT_URL}?action=getRecords&callback=${callbackName}`;
+        script.onerror = err => {
+          delete window[callbackName];
+          reject(err);
+          script.remove();
+        };
+        document.body.appendChild(script);
+      });
+    }
+  
+    document.getElementById('startForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const ad      = document.getElementById('ad').value.trim();
+      const email   = document.getElementById('email').value.trim();
+      const telefon = document.getElementById('telefon').value.trim();
+  
+      try {
+        // JSONP ile kayıtları çek
+        const records = await loadRecordsJSONP();
+  
+        const exists = records.some(r =>
+          r.adSoyad.toLowerCase() === ad.toLowerCase() &&
+          r.telefon.replace(/\D/g,'') === telefon.replace(/\D/g,'')
+        );
+        if (exists) {
+          alert('Bu bilgilerle zaten katıldınız.');
+          this.querySelector('button').disabled = true;
+          return;
+        }
+  
+        sessionStorage.setItem('ad', ad);
+        sessionStorage.setItem('telefon', telefon);
+        window.location.href = 'oyun.html';
+  
+      } catch (err) {
+        console.error(err);
+        alert('Kayıtlar alınamadı: ' + err.message);
+      }
+    });
+  </script>
+  
+
+
+  
+</body>
+</html>

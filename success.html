@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kazandınız!</title>
+  <!-- reCAPTCHA v2 -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding-top: 30px; background-color: #F7F7F7; }
+    .logo { width: 150px; margin-bottom: 20px; }
+    canvas { border: 5px solid #333; border-radius: 50%; margin-top: 20px; }
+    #spin, #confirmButton {
+      padding: 10px 20px; font-size: 20px; margin-top: 20px;
+      border-radius: 6px; border: none; cursor: pointer;
+    }
+    #spin { background: #007BFF; color: white; }
+    #spin:hover { background: #0056b3; }
+    #confirmButton {
+      background: #28a745; color: white; display: none;
+    }
+    #confirmButton:hover { background: #218838; }
+    #result { font-size: 24px; font-weight: bold; margin-top: 30px; color: green; }
+    .qr-code { margin-top: 20px; }
+    .qr-code img { width: 150px; height: 150px; }
+  </style>
+</head>
+<body>
+  <!-- Eğer session’da info yoksa başa dön -->
+  <script>
+    if (!sessionStorage.getItem('ad') ||
+        !sessionStorage.getItem('email') ||
+        !sessionStorage.getItem('telefon')) {
+      window.location.href = 'index.html';
+    }
+  </script>
+
+  <img class="logo" src="detam.jpg" alt="Detam Logo" />
+  <h1>Tebrikler! 🎉</h1>
+  <p>5 sorudan 5'ini doğru yanıtladınız. Şimdi çarkı çevirerek ödülünüzü kazanın!</p>
+
+  <div style="position: relative; display: inline-block;">
+    <canvas id="wheel" width="400" height="400"></canvas>
+    <div id="pointer" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 48px; color: red;">
+      🢃
+    </div>
+  </div>
+  <br>
+  <button id="spin">Çevir!</button>
+  <div id="result"></div>
+
+  <!-- reCAPTCHA widget -->
+  <div class="g-recaptcha" data-sitekey="YOUR_SITE_KEY"></div>
+  <button id="confirmButton">Hediyemi Al</button>
+
+  <script>
+    // Wheel çizimi ve döndürme
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width, h = canvas.height;
+    const centerX = w/2, centerY = h/2, radius = 180;
+    const segments = 3, degPer = 360/segments;
+    const colors  = ["#f44336","#4CAF50","#2196F3"];
+    const prizes  = ["Tam Check-Up","Göz Ölçüm Testi","Duyma Testi"];
+    let angle = 0, isSpun = false;
+
+    function drawWheel() {
+      for (let i=0; i<segments; i++) {
+        const start = (degPer*i)*Math.PI/180;
+        const end   = (degPer*(i+1))*Math.PI/180;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, start, end);
+        ctx.fillStyle = colors[i];
+        ctx.fill(); ctx.stroke();
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(start + (end-start)/2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#fff";
+        ctx.font = "18px Arial";
+        ctx.fillText(prizes[i], radius-10, 10);
+        ctx.restore();
+      }
+    }
+    drawWheel();
+
+    let kazanan; // global scope
+
+    document.getElementById("spin").addEventListener("click", () => {
+      if (isSpun) return;
+      isSpun = true;
+      document.getElementById("result").textContent = "";
+      let rotation = Math.floor(Math.random()*360) + 1080;
+      let current = 0;
+      const interval = setInterval(() => {
+        angle = (angle + 10) % 360;
+        ctx.clearRect(0,0,w,h);
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(angle * Math.PI/180);
+        ctx.translate(-centerX, -centerY);
+        drawWheel();
+        ctx.restore();
+        current += 10;
+        if (current >= rotation) {
+          clearInterval(interval);
+          const final = angle % 360;
+          const adj   = (360 - final + 270) % 360;
+          const idx   = Math.floor(adj/degPer);
+          kazanan     = prizes[idx];
+          document.getElementById("result").textContent = "Kazandığınız: " + kazanan;
+          document.getElementById("confirmButton").style.display = "inline-block";
+        }
+      }, 20);
+    });
+
+    // "Hediyemi Al" tıklandığında reCAPTCHA + POST + 1 dk sonra yönlendirme
+    document.getElementById("confirmButton").addEventListener("click", async function() {
+      const btn = this;
+      btn.disabled = true;
+      const token = grecaptcha.getResponse();
+      if (!token) {
+        alert('Lütfen "Ben robot değilim" kutusunu işaretleyin.');
+        btn.disabled = false;
+        return;
+      }
+      const payload = {
+        name:  sessionStorage.getItem('ad'),
+        phone: sessionStorage.getItem('telefon'),
+        email: sessionStorage.getItem('email'),
+        prize: kazanan,
+        'g-recaptcha-response': token
+      };
+      try {
+        const res = await fetch('https://script.google.com/macros/s/AKfycbxEkcC6abIGwyjwqguW1po214L6_CqzCF5P4_HXAkkeIm6c77t5p36QPDALxiRpM7tmjA/exec', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const msg = await res.text();
+        alert(msg);
+        // 1 dakika sonra yönlendir
+        setTimeout(() => {
+          window.location.href = 'https://detam.com.tr';
+        }, 60000);
+      } catch (err) {
+        console.error(err);
+        alert('Gönderim sırasında bir hata oluştu.');
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
