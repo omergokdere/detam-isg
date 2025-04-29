@@ -26,6 +26,19 @@
   </style>
 </head>
 <body>
+  <script>
+    const nav = performance.getEntriesByType("navigation")[0];
+    if (nav && nav.type === "reload") {
+      window.location.href = 'index.html';
+    }
+    if (!sessionStorage.getItem('ad') ||
+        !sessionStorage.getItem('email') ||
+        !sessionStorage.getItem('telefon')) {
+      window.location.href = 'index.html';
+    }
+  </script>
+  
+
   <div class="quiz-container">
     <a href="https://www.detam.com.tr/" target="_blank">
       <img src="detam.jpg" alt="Detam Group Logo" class="logo" />
@@ -33,6 +46,13 @@
     <h1>İSG Bilgi Yarışması</h1>
     <div id="quiz"></div>
     <button onclick="submitQuiz()">Gönder</button>
+  </div>
+
+  <br>
+  <br>
+  <div class="qr-code">
+    <p>Detaylı bilgi için QR kodu tarayın:</p>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code" />
   </div>
 
   <script>

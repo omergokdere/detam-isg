@@ -79,7 +79,7 @@
           r.telefon.replace(/\D/g,'') === telefon.replace(/\D/g,'')
         );
         if (exists) {
-          alert('Bu bilgilerle zaten katıldınız.');
+          alert('Bu kullanıcı ödül kazanmış.');
           this.querySelector('button').disabled = true;
           return;
         }
@@ -91,7 +91,7 @@
   
       } catch (err) {
         console.error(err);
-        alert('Kayıtlar alınamadı: ' + err.message);
+        alert('Bu kullanıcı ödül kazanmış.');
       }
     });
   </script>

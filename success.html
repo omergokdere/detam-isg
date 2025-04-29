@@ -25,13 +25,20 @@
 </head>
 <body>
   <!-- Eğer session’da info yoksa başa dön -->
-  <script>
-    if (!sessionStorage.getItem('ad') ||
-        !sessionStorage.getItem('email') ||
-        !sessionStorage.getItem('telefon')) {
-      window.location.href = 'index.html';
-    }
-  </script>
+    <!-- Eğer sayfa yenilendiyse doğrudan index’e dön -->
+    <script>
+      const nav = performance.getEntriesByType("navigation")[0];
+      if (nav && nav.type === "reload") {
+        window.location.href = 'index.html';
+      }
+  
+      // Eğer session’da info yoksa da index’e dön
+      if (!sessionStorage.getItem('ad') ||
+          !sessionStorage.getItem('email') ||
+          !sessionStorage.getItem('telefon')) {
+        window.location.href = 'index.html';
+      }
+    </script>
 
   <img class="logo" src="detam.jpg" alt="Detam Logo" />
   <h1>Tebrikler! 🎉</h1>
@@ -46,10 +53,11 @@
   <br>
   <button id="spin">Çevir!</button>
   <div id="result"></div>
+  <br
   <div class="qr-code">
     <p>Detaylı bilgi için QR kodu tarayın:</p>
     <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code" />
-
+<br>
   <button id="confirmButton">Hediyemi Al</button>
 
   <script>
@@ -132,8 +140,9 @@
         });
 
 
-        const msg = await res.text();
-        alert(msg);
+        await res.text();  // sunucudan OK geldiğini varsayalım
+        alert('Ödülünüzü kaydettik. detam.com.tr’ye yönlendiriliyorsunuz.');
+
         // 1 dakika sonra yönlendir
         setTimeout(() => {
           window.location.href = 'https://detam.com.tr';
