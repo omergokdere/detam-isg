@@ -6,56 +6,111 @@
     <title>İSG Etkinlik</title>
     <style>
       body {
-        font-family: Arial, sans-serif;
-        padding: 20px;
-        background-color: #F7F7F7;
-      }
-      .event-container {
-        background: #F7F7F7;
-        padding: 20px;
-        border-radius: 8px;
-        max-width: 400px;
-        margin: 0 auto;
-        box-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
-        position: relative;
-      }
-      .logo {
-        width: 150px;
-        display: block;
-        margin: 0 auto 20px auto;
-      }
-      h1 {
-        text-align: center;
-      }
-      .question-block {
-        margin-bottom: 20px;
-      }
-      .question {
-        font-weight: bold;
-      }
-      .choices label {
-        cursor: pointer;
-      }
-      button {
-        padding: 10px 20px;
-        font-size: 1em;
-        border-radius: 6px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        cursor: pointer;
-      }
-      button:hover {
-        background-color: #0056b3;
-      }
-      .qr-code {
-        margin-top: 20px;
-        text-align: center;
-      }
-      .qr-code img {
-        width: 150px;
-        height: 150px;
-      }
+  font-family: Arial, sans-serif;
+  margin: 0; /* Varsayılan margin'i kaldır */
+  padding: 0; /* Varsayılan padding'i kaldır */
+  background-color: #F7F7F7; /* Arka plan rengi */
+  height: 100vh; /* Görünüm alanının tamamını kapla */
+  display: flex;
+  justify-content: center; /* Container'ı yatayda ortala */
+  align-items: center; /* Container'ı dikeyde ortala */
+  flex-direction: column; /* QR kodu alta yerleştirmek için dikey düzen */
+}
+
+.event-container {
+  background: #F7F7F7; /* Body ile aynı arka plan rengi */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Daha belirgin gölge */
+  width: 80%; /* Genişliği %80 yap */
+  max-width: 600px; /* Maksimum genişlik 600px */
+  overflow-y: auto; /* İçerik taşarsa kaydırma ekle */
+}
+
+.logo {
+  width: 150px; /* Sabit genişlik */
+  height: auto; /* Oranları koru */
+  display: block;
+  margin: 20px auto; /* Yatayda ortala ve alt boşluk ekle */
+}
+
+.question-block {
+  margin-bottom: 20px;
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* İki sütunlu düzen */
+  gap: 10px; /* Hücreler arasında boşluk */
+}
+
+.question {
+  font-weight: bold; /* Soruları kalın yap */
+  margin-bottom: 10px; /* Sorunun altına boşluk ekle */
+}
+
+.choices label {
+  display: flex; /* Radio buton ve metni hizala */
+  align-items: center;
+  cursor: pointer;
+  border: 1px solid #ccc; /* Çevresine kenarlık ekle */
+  border-radius: 5px; /* Kenarları yuvarla */
+  padding: 10px; /* İçerik çevresine boşluk ekle */
+  transition: background-color 0.3s ease, border-color 0.3s ease; /* Hover efekti */
+  background-color: transparent; /* Arka planı şeffaf yap */
+}
+
+.choices label:hover {
+  background-color: #f0f8ff; /* Hover sırasında açık mavi arka plan */
+  border-color: #007bff; /* Hover sırasında kenarlık rengi */
+}
+
+.choices input[type="radio"]:checked + label {
+  background-color: rgb(43, 28, 255); /* Seçili radio'nun arka planını beyaz yap */
+  border-color: #007bff; /* Seçili radio'nun kenarlık rengi */
+}
+
+.choices input[type="radio"] {
+  margin-right: 10px; /* Radio buton ile metin arasında boşluk */
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 1em;
+  border-radius: 6px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 20px; /* Üstüne boşluk ekle */
+  width: 100%; /* Butonu tam genişlik yap */
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.qr-code {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.qr-code img {
+  width: 150px;
+  height: 150px;
+}
+      @media (max-width: 480px) {
+  .event-container {
+    padding: 10px;
+  }
+  .question {
+    font-size: 14px;
+  }
+  button {
+    font-size: 14px;
+  }
+}
+
     </style>
     <script>
       window.onpageshow = function(event) {
@@ -68,8 +123,8 @@
   <body>
     <div class="event-container">
       <a href="https://www.detam.com.tr/" target="_blank">
-        <img src="detam.jpg" alt="Detam Group Logo" class="logo" />
-      </a>
+  <img src="detam.jpg" alt="Detam Group Logo" class="logo" />
+</a>
       <!-- The header will be updated below based on language -->
       <h1>İSG Etkinlik</h1>
       <div id="event"></div>
@@ -215,29 +270,43 @@
 
       // Render Event Questions
       selectedQuestions.forEach((q, index) => {
-        let questionText = `${index + 1}. ${q.question}`;
-        const block = document.createElement("div");
-        block.className = "question-block";
-        block.innerHTML = `
-          <p class="question">${questionText}</p>
-          <div class="choices">
-            ${q.choices
-              .map((c, i) =>
-                `<label><input type="radio" name="q${index}" value="${i}" /> ${c}</label><br />`
-              )
-              .join("")}
-          </div>
-        `;
-        eventContainer.appendChild(block);
-      });
+  let questionText = `${index + 1}. ${q.question}`;
+  const block = document.createElement("div");
+  block.className = "question-block";
+  block.innerHTML = `
+    <p class="question">${questionText}</p>
+    <div class="choices">
+      ${q.choices
+        .map(
+          (c, i) => `
+
+          <label>
+            <input type="radio" name="q${index}" value="${i}" aria-label="${c}" /> ${c}
+          </label>
+        `
+        )
+        .join("")}
+    </div>
+  `;
+  eventContainer.appendChild(block);
+});
 
       // Submit Event and calculate score
       function submitEvent() {
         let score = 0;
+        let unanswered = false;
+
         selectedQuestions.forEach((q, i) => {
           const sel = document.querySelector(`input[name=q${i}]:checked`);
+          if (!sel) unanswered = true;
           if (sel && parseInt(sel.value) === q.correct) score++;
         });
+
+        if (unanswered) {
+          alert(lang === "en" ? "Please answer all questions." : "Lütfen tüm soruları cevaplayın.");
+          return;
+        }
+
         if (score === 5) {
           window.location.href = "success.html";
         } else {

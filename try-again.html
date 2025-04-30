@@ -1,42 +1,100 @@
-
 <!DOCTYPE html>
 <html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <title>Tekrar Deneyin</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #fff0f0; }
-    .logo { width: 150px; margin-bottom: 20px; }
-    h1 { color: #d00; }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .qr-code {
-    margin-top: 20px;
-  }
-  .qr-code img {
-    width: 150px;
-    height: 150px;
-  }
-  </style>
-</head>
-<body>
-  <img class="logo" src="detam.jpg" alt="Logo" />
-  <h1>Üzgünüz 😥</h1>
-  <p>5'te 5 yapamadınız.</p>
-  <p>Lütfen tekrar deneyin!</p>
-  <button onclick="window.location.href='oyun.html'">Tekrar Dene</button>
-</body>
-<div class="qr-code">
-  <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code" />
-</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tekrar Deneyin</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background-color: #F7F7F7;
+      }
+      .container {
+        background: #F7F7F7;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 400px;
+        margin: 0 auto;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
+        text-align: center;
+      }
+      .logo {
+        width: 150px;
+        margin-bottom: 20px;
+      }
+      h1 {
+        color: #d00;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .qr-code {
+        margin-top: 20px;
+      }
+      .qr-code img {
+        width: 150px;
+        height: 150px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img class="logo" src="detam.jpg" alt="Logo" />
+      <h1 id="header">Üzgünüz 😥</h1>
+      <p id="message1">5'te 5 yapamadınız.</p>
+      <p id="message2">Lütfen tekrar deneyin!</p>
+      <button id="retryButton" onclick="window.location.href='oyun.html'">Tekrar Dene</button>
+      <div class="qr-code">
+        <p id="qrText">Detaylı bilgi için QR kodu tarayın:</p>
+        <img
+          src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150"
+          alt="QR Code"
+        />
+      </div>
+    </div>
+
+    <script>
+      // Retrieve language preference (default to Turkish)
+      const lang = sessionStorage.getItem('lang') || 'tr';
+
+      // Translations for both languages
+      const translations = {
+        tr: {
+          header: "Üzgünüz 😥",
+          message1: "5'te 5 yapamadınız.",
+          message2: "Lütfen tekrar deneyin!",
+          retryButton: "Tekrar Dene",
+        },
+        en: {
+          header: "Try again 😥",
+          message1: "Unfotunately you didn't score 5 out of 5.",
+          message2: "Please try again!",
+          retryButton: "Try",
+        }
+      };
+
+      // Select the appropriate translations
+      const t = translations[lang];
+
+      // Update the text content dynamically
+      document.getElementById("header").textContent = t.header;
+      document.getElementById("message1").textContent = t.message1;
+      document.getElementById("message2").textContent = t.message2;
+      document.getElementById("retryButton").textContent = t.retryButton;
+      document.getElementById("qrText").textContent = t.qrText;
+
+      // Update the document title
+      document.title = lang === "en" ? "Try Again" : "Tekrar Deneyin";
+    </script>
+  </body>
 </html>

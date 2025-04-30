@@ -74,8 +74,12 @@
       height: 120px;
     }
     @media (max-width: 480px) {
-      h1 { font-size: 1.5rem; }
-      input, button { font-size: 14px; }
+      .container {
+        padding: 20px;
+      }
+      input, button {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
@@ -87,23 +91,18 @@
     
     <!-- Language Selection Switch -->
     <div class="lang-switch">
-      <span class="lang-label" id="langLabel">Dil: Türkçe</span>
-      <label class="switch">
-        <input type="checkbox" id="languageToggle">
-        <span>English</span>
-      </label>
+      <label for="languageToggle" class="lang-label" id="langLabel">Dil: Türkçe</label>
+      <input type="checkbox" id="languageToggle" aria-label="Language Toggle">
     </div>
     
     <!-- Updated header title -->
     <h1 id="formTitle">Detam ISG Etkinlik</h1>
+    <br>
     <form id="startForm">
-      <input type="text" id="ad" placeholder="Ad Soyad" required>
-      <input type="email" id="email" placeholder="E-posta" required>
-      <input type="tel" id="telefon" 
-             placeholder="Telefon" required 
-             pattern="^\d+$" 
-             title="Please enter digits only">
-      <button type="submit" id="startBtn">Oyuna Başla</button>
+      <input type="text" id="ad" placeholder="Ad Soyad" required aria-label="Ad Soyad">
+      <input type="email" id="email" placeholder="E-posta" required aria-label="E-posta">
+      <input type="tel" id="telefon" placeholder="Telefon" required pattern="^\d+$" title="Please enter digits only" aria-label="Telefon">
+      <button type="submit" id="startBtn">Devam</button>
     </form>
     <div class="qr-code">
       <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code">
@@ -147,25 +146,52 @@
   // When form is submitted, ensure the language flag and other data are preserved.
   document.getElementById('startForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const ad      = document.getElementById('ad').value.trim();
-    const email   = document.getElementById('email').value.trim();
-    const telefon = document.getElementById('telefon').value.trim();
+    const startBtn = document.getElementById('startBtn');
+    startBtn.disabled = true; // Disable the button
+    startBtn.textContent = languageToggle.checked ? 'Processing...' : 'İşleniyor...';
+
+    // Save user data and redirect logic
+    function sanitizeInput(input) {
+  const div = document.createElement('div');
+  div.textContent = input;
+  return div.innerHTML;
+}
+
+const ad = sanitizeInput(document.getElementById('ad').value.trim());
+const email = sanitizeInput(document.getElementById('email').value.trim());
+const telefon = sanitizeInput(document.getElementById('telefon').value.trim());
 
     if (!/^\d+$/.test(telefon)) {
       alert(languageToggle.checked ? 'Please enter digits only' : 'Telefon numarası yalnızca rakamlardan oluşmalıdır.');
+      startBtn.disabled = false; // Re-enable the button
+      startBtn.textContent = languageToggle.checked ? 'Continue' : 'Devam';
       return;
     }
 
-    // Save user data and language info to sessionStorage
     sessionStorage.setItem('ad', ad);
     sessionStorage.setItem('email', email);
     sessionStorage.setItem('telefon', telefon);
-    // Fallback: if language flag wasn't already set via toggle
     sessionStorage.setItem('lang', languageToggle.checked ? 'en' : 'tr');
 
-    // Redirect to quiz page.
-    window.location.href = 'oyun.html';
+    try {
+  window.location.href = 'oyun.html';
+} catch (error) {
+  alert(languageToggle.checked ? 'An error occurred while redirecting.' : 'Yönlendirme sırasında bir hata oluştu.');
+}
   });
+
+  // Check for saved language preference in sessionStorage
+const savedLang = sessionStorage.get
+
+document.addEventListener('DOMContentLoaded', () => {
+  const ad = sessionStorage.getItem('ad');
+  const email = sessionStorage.getItem('email');
+  const telefon = sessionStorage.getItem('telefon');
+
+  if (ad) document.getElementById('ad').value = ad;
+  if (email) document.getElementById('email').value = email;
+  if (telefon) document.getElementById('telefon').value = telefon;
+});
   </script>
 </body>
 </html>
