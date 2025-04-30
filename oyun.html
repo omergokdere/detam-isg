@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>İSG Bilgi Yarışması</title>
+    <title>İSG Etkinlik</title>
     <style>
       body {
         font-family: Arial, sans-serif;
         padding: 20px;
-        background-color: #f1f1f1;
+        background-color: #F7F7F7;
       }
-      .quiz-container {
+      .event-container {
         background: #f7f7f7;
         padding: 20px;
         border-radius: 8px;
@@ -57,112 +57,184 @@
         height: 150px;
       }
     </style>
+    <script>
+      window.onpageshow = function(event) {
+        if (event.persisted) {
+          window.location.reload();
+        }
+      };
+    </script>
   </head>
   <body>
-    <script>
-      const nav = performance.getEntriesByType("navigation")[0];
-      if (nav && nav.type === "reload") {
-        window.location.href = "index.html";
-      }
-      if (
-        !sessionStorage.getItem("ad") ||
-        !sessionStorage.getItem("email") ||
-        !sessionStorage.getItem("telefon")
-      ) {
-        window.location.href = "index.html";
-      }
-    </script>
-
-    <div class="quiz-container">
+    <div class="event-container">
       <a href="https://www.detam.com.tr/" target="_blank">
         <img src="detam.jpg" alt="Detam Group Logo" class="logo" />
       </a>
-      <h1>İSG Bilgi Yarışması</h1>
-      <div id="quiz"></div>
-      <button onclick="submitQuiz()">Gönder</button>
+      <!-- The header will be updated below based on language -->
+      <h1>İSG Etkinlik</h1>
+      <div id="event"></div>
+      <button onclick="submitEvent()">Gönder</button>
     </div>
 
-    <br />
-    <br />
+    <br /><br />
     <div class="qr-code">
       <p>Detaylı bilgi için QR kodu tarayın:</p>
-      <img
-        src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150"
-        alt="QR Code"
-      />
+      <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code" />
     </div>
 
     <script>
-      const quizData = [
+      // Retrieve language preference (default to Turkish)
+      const lang = sessionStorage.getItem('lang') || 'tr';
+
+      // Update heading, button text, QR code sentence, and document title based on language.
+      const header = document.querySelector('h1');
+      const submitBtn = document.querySelector('.event-container button');
+      const qrCodePara = document.querySelector('.qr-code p');
+      if (lang === "en") {
+          header.textContent = "OSHA Event";
+          submitBtn.textContent = "Submit";
+          qrCodePara.textContent = "Scan the QR code for more details:";
+          document.title = "OSHA Event";
+      } else {
+          header.textContent = "İSG Etkinlik";
+          submitBtn.textContent = "Gönder";
+          qrCodePara.textContent = "Detaylı bilgi için QR kodu tarayın:";
+          document.title = "İSG Etkinlik";
+      }
+
+      // Turkish Event Data
+      const eventData_tr = [
         {
           question: "Baret hangi amaçla kullanılır?",
           choices: [
-            "Görüşü artırmak",
-            "Baş koruması",
-            "Ayak kaymasını önlemek",
-            "Gürültüyü azaltmak",
+            "Görüşü artırmak", 
+            "Baş koruması", 
+            "Ayak kaymasını önlemek", 
+            "Gürültüyü azaltmak"
           ],
           correct: 1,
         },
         {
           question: "Yangın tüpü hangi renktedir?",
-          choices: ["Sarı", "Mavi", "Kırmızı", "Yeşil"],
+          choices: [
+            "Sarı", 
+            "Mavi", 
+            "Kırmızı", 
+            "Yeşil"
+          ],
           correct: 2,
         },
         {
           question: "Kulak tıkacı ne için kullanılır?",
-          choices: ["İşitmeden korunma", "Gürültü önleme", "Yük kaldırma", "Tozdan korunma"],
+          choices: [
+            "İşitmeden korunma", 
+            "Gürültü önleme", 
+            "Yük kaldırma", 
+            "Tozdan korunma"
+          ],
           correct: 1,
         },
         {
           question: "Gözlük hangi tür KKD'dir?",
           choices: [
-            "Solunum",
-            "Düşme önleyici",
-            "Göz koruyucu",
-            "Ayak koruyucu",
+            "Solunum", 
+            "Düşme önleyici", 
+            "Göz koruyucu", 
+            "Ayak koruyucu"
           ],
           correct: 2,
         },
         {
           question: "İSG nedir?",
           choices: [
-            "İş Sağlığı ve Güvenliği",
-            "İleri Seviye Güç",
-            "İşyeri Sistem Gelişimi",
-            "Bulaşıcı Hastalık",
+            "İş Sağlığı ve Güvenliği", 
+            "İleri Seviye Güç", 
+            "İşyeri Sistem Gelişimi", 
+            "Bulaşıcı Hastalık"
           ],
           correct: 0,
         },
-        // ... (toplam 15 soru, örnek olarak 5'i burada gösterdim)
       ];
 
-      function getRandomQuestions(arr, count) {
-        const shuffled = [...arr].sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, count);
-      }
+      // English Event Data
+      const eventData_en = [
+        {
+          question: "What is the purpose of a safety helmet?",
+          choices: [
+            "To enhance vision", 
+            "Head protection", 
+            "Prevent slipping", 
+            "Reduce noise"
+          ],
+          correct: 1,
+        },
+        {
+          question: "What color is the fire extinguisher?",
+          choices: [
+            "Yellow", 
+            "Blue", 
+            "Red", 
+            "Green"
+          ],
+          correct: 2,
+        },
+        {
+          question: "What is the purpose of earplugs?",
+          choices: [
+            "For hearing protection", 
+            "For noise prevention", 
+            "For heavy lifting", 
+            "For dust protection"
+          ],
+          correct: 1,
+        },
+        {
+          question: "Which type of PPE are safety glasses?",
+          choices: [
+            "Respiratory", 
+            "Fall protection", 
+            "Eye protection", 
+            "Foot protection"
+          ],
+          correct: 2,
+        },
+        {
+          question: "What does Occupational Safety and Health (OSHA) mean?",
+          choices: [
+            "Occupational Safety and Health", 
+            "Advanced Strength", 
+            "Workplace System Development", 
+            "Contagious Diseases"
+          ],
+          correct: 0,
+        },
+      ];
 
-      const selectedQuestions = getRandomQuestions(quizData, 5);
-      const quizContainer = document.getElementById("quiz");
+      // Select the proper event data based on language.
+      const eventData = (lang === 'en') ? eventData_en : eventData_tr;
+      const selectedQuestions = eventData.slice(0, 5);
+      const eventContainer = document.getElementById("event");
 
+      // Render Event Questions
       selectedQuestions.forEach((q, index) => {
+        let questionText = `${index + 1}. ${q.question}`;
         const block = document.createElement("div");
         block.className = "question-block";
         block.innerHTML = `
-        <p class="question">${index + 1}. ${q.question}</p>
-        <div class="choices">
-          ${q.choices
-            .map(
-              (c, i) =>
+          <p class="question">${questionText}</p>
+          <div class="choices">
+            ${q.choices
+              .map((c, i) =>
                 `<label><input type="radio" name="q${index}" value="${i}" /> ${c}</label><br />`
-            )
-            .join("")}
-        </div>
-      `;
-        quizContainer.appendChild(block);
+              )
+              .join("")}
+          </div>
+        `;
+        eventContainer.appendChild(block);
       });
 
-      function submitQuiz() {
+      // Submit Event and calculate score
+      function submitEvent() {
         let score = 0;
         selectedQuestions.forEach((q, i) => {
           const sel = document.querySelector(`input[name=q${i}]:checked`);

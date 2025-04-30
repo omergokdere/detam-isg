@@ -2,126 +2,171 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Detam Kullanıcı Girişi</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding-top: 40px; background-color: #f7f7f7; }
-    form { background: white; padding: 30px; display: inline-block; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    .logo { width: 150px; display: block; margin: 0 auto 20px auto; }
-    .qr-code { margin-top: 20px; }
-    .qr-code img { width: 150px; height: 150px; }
+    /* Reset and Box Sizing */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #F7F7F7;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background-color: #F7F7F7;
+      padding: 40px 20px;
+      border-radius: 12px;
+      box-shadow: 2 15px 12px #000000(0 0% 100% / 0.15);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    .logo {
+      max-width: 100px;
+      margin: 0 auto 20px;
+      display: block;
+    }
+    .lang-switch {
+      margin-bottom: 15px;
+    }
+    .lang-label {
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
     input, button {
-      display: block; margin: 10px auto; padding: 10px; width: 250px;
-      font-size: 16px; border-radius: 6px; border: 1px solid #ccc;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    input:focus {
+      border-color: #66a6ff;
     }
     button {
-      background-color: #28a745; color: white; cursor: pointer;
+      background: #66a6ff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
     }
-    button:disabled { background-color: #aaa; cursor: not-allowed; }
-    button:hover:not(:disabled) { background-color: #218838; }
+    button:hover {
+      background: #89f7fe;
+    }
+    .qr-code {
+      margin-top: 20px;
+    }
+    .qr-code img {
+      width: 120px;
+      height: 120px;
+    }
+    @media (max-width: 480px) {
+      h1 { font-size: 1.5rem; }
+      input, button { font-size: 14px; }
+    }
   </style>
 </head>
 <body>
-  <a href="https://www.detam.com.tr/" target="_blank">
-    <img src="detam.jpg" alt="Detam Group Logo" class="logo" />
-  </a>
-  <h1>İSG Bilgi Yarışması</h1>
-
-<br>
-
-  <form id="startForm">
-    <input type="text" id="ad" placeholder="Ad Soyad" required>
-    <input type="email" id="email" placeholder="E-posta" required>
-    <input type="tel" id="telefon" placeholder="Telefon" required>
-    <button type="submit" id="startBtn">Oyuna Başla</button>
-  </form>
-<br>
-<div class="qr-code">
-  <p>Detaylı bilgi için QR kodu tarayın:</p>
-  <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code" />
-</div>
+  <div class="container">
+    <a href="https://www.detam.com.tr/" target="_blank">
+      <img src="detam.jpg" alt="Detam Group Logo" class="logo">
+    </a>
+    
+    <!-- Language Selection Switch -->
+    <div class="lang-switch">
+      <span class="lang-label" id="langLabel">Dil: Türkçe</span>
+      <label class="switch">
+        <input type="checkbox" id="languageToggle">
+        <span>English</span>
+      </label>
+    </div>
+    
+    <!-- Updated header title -->
+    <h1 id="formTitle">Detam ISG Etkinlik</h1>
+    <form id="startForm">
+      <input type="text" id="ad" placeholder="Ad Soyad" required>
+      <input type="email" id="email" placeholder="E-posta" required>
+      <input type="tel" id="telefon" 
+             placeholder="Telefon" required 
+             pattern="^\d+$" 
+             title="Please enter digits only">
+      <button type="submit" id="startBtn">Oyuna Başla</button>
+    </form>
+    <div class="qr-code">
+      <p>Detaylı bilgi için QR kodu tarayın:</p>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code">
+    </div>
+  </div>
 
   <script>
-    
+  // Language switch logic: toggles between Turkish and English text on the form.
+  const languageToggle = document.getElementById('languageToggle');
+  languageToggle.addEventListener('change', function() {
+    const langLabel   = document.getElementById('langLabel');
+    const formTitle   = document.getElementById('formTitle');
+    const adInput     = document.getElementById('ad');
+    const emailInput  = document.getElementById('email');
+    const telefonInput= document.getElementById('telefon');
+    const startBtn    = document.getElementById('startBtn');
 
-    const SHEET_ID = '1vrDvGMuIwJuhDH-6fdQrlOT8f_Eo7tpGDNhtzA1s2Z4';
-  const GID      = 0;  // İlk sekme için genelde 0
+    if (this.checked) {
+      // English settings
+      langLabel.textContent      = "Language: English";
+      formTitle.textContent      = "Detam OSHA Event";
+      adInput.placeholder        = "Full Name";
+      emailInput.placeholder     = "Email";
+      telefonInput.placeholder   = "Phone";
+      telefonInput.title         = "Please enter digits only";
+      startBtn.textContent       = "Continue";
+      sessionStorage.setItem('lang', 'en');
+    } else {
+      // Turkish settings (default)
+      langLabel.textContent      = "Dil: Türkçe";
+      formTitle.textContent      = "Detam ISG Etkinlik";
+      adInput.placeholder        = "Ad Soyad";
+      emailInput.placeholder     = "E-posta";
+      telefonInput.placeholder   = "Telefon";
+      telefonInput.title         = "Telefon numarası yalnızca rakamlardan oluşmalıdır";
+      startBtn.textContent       = "Devam";
+      sessionStorage.setItem('lang', 'tr');
+    }
+  });
 
-  function loadRecordsJSONP() {
-    return new Promise((resolve, reject) => {
-      const cb = 'handleRecords_' + Date.now();
-      const script = document.createElement('script');
+  // When form is submitted, ensure the language flag and other data are preserved.
+  document.getElementById('startForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const ad      = document.getElementById('ad').value.trim();
+    const email   = document.getElementById('email').value.trim();
+    const telefon = document.getElementById('telefon').value.trim();
 
-      // JSONP callback: rows dizisini çıkarıp resolve et
-      window[cb] = function(data) {
-        try {
-          const rows = data.table.rows.map(r => ({
-            adSoyad: r.c[0]?.v || '',
-            email:   r.c[1]?.v || '',
-            telefon: (r.c[2]?.v || '').toString().replace(/\D/g,''),
-            odul:     r.c[3]?.v || '',
-            tarih:    r.c[4]?.f || ''
-          }));
-          resolve(rows);
-        } catch (e) {
-          reject(e);
-        } finally {
-          delete window[cb];
-          script.remove();
-        }
-      };
+    if (!/^\d+$/.test(telefon)) {
+      alert(languageToggle.checked ? 'Please enter digits only' : 'Telefon numarası yalnızca rakamlardan oluşmalıdır.');
+      return;
+    }
 
-      // tqx parametresi içindeki semicolon’u encode ederek
-      // responseHandler’ın parçalanmasını engelliyoruz
-      const tqxVal = `out:json;responseHandler:${cb}`;
-      const url    =
-        `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?` +
-        `gid=${GID}&tqx=${encodeURIComponent(tqxVal)}`;
+    // Save user data and language info to sessionStorage
+    sessionStorage.setItem('ad', ad);
+    sessionStorage.setItem('email', email);
+    sessionStorage.setItem('telefon', telefon);
+    // Fallback: if language flag wasn't already set via toggle
+    sessionStorage.setItem('lang', languageToggle.checked ? 'en' : 'tr');
 
-      script.src     = url;
-      script.onerror = err => {
-        delete window[cb];
-        script.remove();
-        reject(err);
-      };
-      document.body.appendChild(script);
-    });
-  }
-  
-    document.getElementById('startForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const ad      = document.getElementById('ad').value.trim();
-      const email   = document.getElementById('email').value.trim();
-      const telefon = document.getElementById('telefon').value.trim();
-  
-      try {
-        // JSONP ile kayıtları çek
-        const records = await loadRecordsJSONP();
-  
-        const exists = records.some(r =>
-          r.adSoyad.toLowerCase() === ad.toLowerCase() &&
-          r.telefon.replace(/\D/g,'') === telefon.replace(/\D/g,'') &&
-          r.email.toLowerCase()  === email.toLowerCase()
-        );
-        if (exists) {
-          alert('Bu kullanıcı ödül kazanmış.');
-          this.querySelector('button').disabled = true;
-          return;
-        }
-  
-        sessionStorage.setItem('ad', ad);
-        sessionStorage.setItem('email', email);
-        sessionStorage.setItem('telefon', telefon);
-        window.location.href = 'oyun.html';
-  
-      } catch (err) {
-        console.error(err);
-        alert('Sunucuya bağlanırken bir sorun oluştu. Lütfen tekrar deneyin.'); 
-      }
-    });
+    // Redirect to quiz page.
+    window.location.href = 'oyun.html';
+  });
   </script>
-  
-
-
-  
 </body>
 </html>

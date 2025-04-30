@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Kazandınız!</title>
-
   <style>
     body { font-family: Arial, sans-serif; text-align: center; padding-top: 30px; background-color: #F7F7F7; }
     .logo { width: 150px; margin-bottom: 20px; }
@@ -24,26 +23,30 @@
   </style>
 </head>
 <body>
-  <!-- Eğer session’da info yoksa başa dön -->
-    <!-- Eğer sayfa yenilendiyse doğrudan index’e dön -->
-    <script>
-      const nav = performance.getEntriesByType("navigation")[0];
-      if (nav && nav.type === "reload") {
-        window.location.href = 'index.html';
-      }
-  
-      // Eğer session’da info yoksa da index’e dön
-      if (!sessionStorage.getItem('ad') ||
-          !sessionStorage.getItem('email') ||
-          !sessionStorage.getItem('telefon')) {
-        window.location.href = 'index.html';
-      }
-    </script>
+  <!-- Block back navigation on this page -->
+  <script>
+    // Block back navigation
+    window.history.pushState(null, '', window.location.href);
+    window.onpopstate = function () {
+      window.history.pushState(null, '', window.location.href);
+      window.location.href = 'index.html';
+    };
+
+    // Eğer sayfa yenilendiyse veya session bilgisi eksikse index'e yönlendir
+    const nav = performance.getEntriesByType("navigation")[0];
+    if (nav && nav.type === "reload") {
+      window.location.href = 'index.html';
+    }
+    if (!sessionStorage.getItem('ad') ||
+        !sessionStorage.getItem('email') ||
+        !sessionStorage.getItem('telefon')) {
+      window.location.href = 'index.html';
+    }
+  </script>
 
   <img class="logo" src="detam.jpg" alt="Detam Logo" />
   <h1>Tebrikler! 🎉</h1>
   <p>5 sorudan 5'ini doğru yanıtladınız. Şimdi çarkı çevirerek ödülünüzü kazanın!</p>
-
   <div style="position: relative; display: inline-block;">
     <canvas id="wheel" width="400" height="400"></canvas>
     <div id="pointer" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 48px; color: red;">
@@ -55,7 +58,7 @@
   <div id="result"></div>
   <br>
   <button id="confirmButton">Hediyemi Al</button>
-<br>
+  <br>
   <div class="qr-code">
     <p>Detaylı bilgi için QR kodu tarayın:</p>
     <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code" />
@@ -68,25 +71,26 @@
     const centerX = w/2, centerY = h/2, radius = 180;
     const segments = 4, degPer = 360/segments;
     const colors  = ["#f44336", "#4CAF50", "#2196F3", "#FFEB3B"];
-    const prizes  = ["Karabina","Göz Ölçüm Testi","Duyma Testi", "Kulak Tıkacı"];
+    const prizes  = ["Karabina", "Göz Ölçüm Testi", "Duyma Testi", "Kulak Tıkacı"];
     let angle = 0, isSpun = false;
 
     function drawWheel() {
-      for (let i=0; i<segments; i++) {
-        const start = (degPer*i)*Math.PI/180;
-        const end   = (degPer*(i+1))*Math.PI/180;
+      for (let i = 0; i < segments; i++) {
+        const start = (degPer * i) * Math.PI / 180;
+        const end   = (degPer * (i+1)) * Math.PI / 180;
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.arc(centerX, centerY, radius, start, end);
         ctx.fillStyle = colors[i];
-        ctx.fill(); ctx.stroke();
+        ctx.fill();
+        ctx.stroke();
         ctx.save();
         ctx.translate(centerX, centerY);
-        ctx.rotate(start + (end-start)/2);
+        ctx.rotate(start + (end - start)/2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#fff";
         ctx.font = "18px Arial";
-        ctx.fillText(prizes[i], radius-10, 10);
+        ctx.fillText(prizes[i], radius - 10, 10);
         ctx.restore();
       }
     }
@@ -122,7 +126,7 @@
       }, 20);
     });
 
-    // "Hediyemi Al" tıklandığında POST + 1 dk sonra yönlendirme
+    // "Hediyemi Al" tıklandığında POST ve sonrasında yönlendirme
     document.getElementById("confirmButton").addEventListener("click", async function() {
       const btn = this;
       btn.disabled = true;
@@ -131,22 +135,28 @@
       const tel   = sessionStorage.getItem('telefon');
       const odul  = kazanan;
 
+      try {
         const res = await fetch('https://script.google.com/macros/s/AKfycbxEkcC6abIGwyjwqguW1po214L6_CqzCF5P4_HXAkkeIm6c77t5p36QPDALxiRpM7tmjA/exec', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({ adSoyad:ad, email:email, telefon:tel, odul:odul })
-  });
-
-
-  const msg = (await res.text()).trim();
-  if (msg==='OK') {
-    alert('Ödülünüzü kaydettik. detam.com.tr’ye yönlendiriliyorsunuz.');
-    setTimeout(()=>window.location.href='https://detam.com.tr',5000);
-  } else {
-    alert('Hata:'+msg);
-    btn.disabled=false;
+          body: new URLSearchParams({ adSoyad: ad, email: email, telefon: tel, odul: odul })
+        });
+        const msg = (await res.text()).trim();
+        if (msg === 'OK') {
+          alert('Ödülünüzü kaydettik. detam.com.tr’ye yönlendiriliyorsunuz.');
+          // Clear sessionStorage to block re-access
+          sessionStorage.clear();
+          // Use location.replace to override history
+          setTimeout(() => window.location.replace('https://detam.com.tr'), 5000);
+        } else {
+          alert('Hata: ' + msg);
+          btn.disabled = false;
+        }
+      } catch (error) {
+        alert('Bir hata oluştu: ' + error);
+        btn.disabled = false;
       }
-  });
+    });
   </script>
 </body>
 </html>
