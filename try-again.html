@@ -34,17 +34,39 @@
         border: none;
         border-radius: 8px;
         cursor: pointer;
+        transition: transform 0.2s ease, background-color 0.3s ease;
       }
       button:hover {
-        background-color: #0056b3;
+        transform: scale(1.05);
       }
       .qr-code {
-        margin-top: 20px;
+        margin-top: 30px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #fff;
+        display: inline-block;
       }
       .qr-code img {
         width: 150px;
         height: 150px;
       }
+      @media (max-width: 480px) {
+  .container {
+    padding: 10px;
+  }
+  h1 {
+    font-size: 20px;
+  }
+  button {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+  .qr-code img {
+    width: 120px;
+    height: 120px;
+  }
+}
     </style>
   </head>
   <body>
@@ -53,7 +75,7 @@
       <h1 id="header">Üzgünüz 😥</h1>
       <p id="message1">5'te 5 yapamadınız.</p>
       <p id="message2">Lütfen tekrar deneyin!</p>
-      <button id="retryButton" onclick="window.location.href='oyun.html'">Tekrar Dene</button>
+      <button id="retryButton" aria-label="Retry" onclick="window.location.href='oyun.html'">Tekrar Dene</button>
       <div class="qr-code">
         <p id="qrText">Detaylı bilgi için QR kodu tarayın:</p>
         <img
@@ -66,6 +88,7 @@
     <script>
       // Retrieve language preference (default to Turkish)
       const lang = sessionStorage.getItem('lang') || 'tr';
+sessionStorage.setItem('lang', lang); // Ensure language persists
 
       // Translations for both languages
       const translations = {

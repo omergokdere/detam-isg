@@ -34,12 +34,23 @@
       margin: 0 auto 20px;
       display: block;
     }
-    .lang-switch {
-      margin-bottom: 15px;
+    .qr-code {
+      margin-top: 20px;
+      text-align: center;
     }
-    .lang-label {
-      margin-right: 10px;
+
+    .lang-switch {
+      display: flex;
+      justify-content: center; /* Ortala */
+      align-items: center;
+      gap: 10px; /* Checkbox ve metin arasında boşluk */
+      margin-top: 15px; /* QR kodu ile dil seçeneği arasında boşluk */
+    }
+
+    #langText {
       font-weight: bold;
+      font-size: 14px;
+      color: #333;
     }
     form {
       display: flex;
@@ -66,13 +77,6 @@
     button:hover {
       background: #89f7fe;
     }
-    .qr-code {
-      margin-top: 20px;
-    }
-    .qr-code img {
-      width: 120px;
-      height: 120px;
-    }
     @media (max-width: 480px) {
       .container {
         padding: 20px;
@@ -88,13 +92,6 @@
     <a href="https://www.detam.com.tr/" target="_blank">
       <img src="detam.jpg" alt="Detam Group Logo" class="logo">
     </a>
-    
-    <!-- Language Selection Switch -->
-    <div class="lang-switch">
-      <label for="languageToggle" class="lang-label" id="langLabel">Dil: Türkçe</label>
-      <input type="checkbox" id="languageToggle" aria-label="Language Toggle">
-    </div>
-    
     <!-- Updated header title -->
     <h1 id="formTitle">Detam ISG Etkinlik</h1>
     <br>
@@ -106,6 +103,13 @@
     </form>
     <div class="qr-code">
       <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code">
+    </div>
+
+    <!-- Language Selection Switch -->
+    <div class="lang-switch">
+      <label for="languageToggle" class="lang-label" id="langLabel">Dil: Türkçe</label>
+      <input type="checkbox" id="languageToggle" aria-label="Language Toggle">
+      <span id="langText">EN</span> <!-- İngilizce dil seçeneği için metin -->
     </div>
   </div>
 
