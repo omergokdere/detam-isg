@@ -54,8 +54,8 @@
     }
     form {
       display: flex;
-      flex-direction: column;
-      gap: 15px;
+      flex-direction: column; /* Dikey hizalama */
+      gap: 15px; /* Elemanlar arasında boşluk */
     }
     input, button {
       padding: 12px;
@@ -85,6 +85,30 @@
         font-size: 14px;
       }
     }
+
+    #popup {
+  max-width: 400px; /* Popup genişliğini artır */
+  padding: 30px; /* Daha fazla iç boşluk ekle */
+}
+
+#popup h2, #popup h3 {
+  font-size: 18px; /* Başlık boyutlarını ayarla */
+  margin-bottom: 10px;
+}
+
+#popup p {
+  font-size: 16px; /* Metin boyutunu artır */
+  margin-bottom: 20px;
+}
+
+#popup ul {
+  list-style-type: disc; /* Ödül listesini madde işaretli yap */
+  padding-left: 20px;
+}
+
+#popup button:hover {
+  background-color: #0056b3; /* Hover sırasında buton rengi */
+}
   </style>
 </head>
 <body>
@@ -93,14 +117,28 @@
       <img src="detam.jpg" alt="Detam Group Logo" class="logo">
     </a>
     <!-- Updated header title -->
-    <h1 id="formTitle">Detam ISG Etkinlik</h1>
-    <br>
+    <h1 id="formTitle" style="display: inline-block;">Detam ISG Etkinlik</h1>
+<button id="infoIcon" style="cursor: pointer; margin-left: 10px; font-size: 20px; border: 1px solid #ccc; background: #fff; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center;" aria-label="Info" title="Etkinlik Hakkında">❓</button>
+
+<!-- Popup -->
+<div id="popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); z-index: 1000; text-align: center; max-width: 400px;">
+  <h2 id="popupTitle" style="margin-bottom: 10px;">Detam Etkinliğine Hoş Geldiniz</h2>
+  <h3 id="popupContentHeader" style="margin-bottom: 10px;">Etkinlik İçeriği</h3>
+  <p id="popupContent" style="margin-bottom: 20px;"></p>
+  <h3 id="popupPrizesHeader" style="margin-bottom: 10px;">Ödüller</h3>
+  <ul id="prizeList" style="text-align: left; margin: 0 auto 20px; max-width: 300px;"></ul>
+  <button id="closePopup" style="margin-top: 20px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer;">Tamam</button>
+</div>
+
+<!-- Popup Overlay -->
+<div id="popupOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+
     <form id="startForm">
-      <input type="text" id="ad" placeholder="Ad Soyad" required aria-label="Ad Soyad">
-      <input type="email" id="email" placeholder="E-posta" required aria-label="E-posta">
-      <input type="tel" id="telefon" placeholder="Telefon" required pattern="^\d+$" title="Please enter digits only" aria-label="Telefon">
-      <button type="submit" id="startBtn">Devam</button>
-    </form>
+  <input type="text" id="ad" placeholder="Ad Soyad" required aria-label="Ad Soyad">
+  <input type="email" id="email" placeholder="E-posta" required aria-label="E-posta">
+  <input type="tel" id="telefon" placeholder="Telefon" required pattern="^\d+$" title="Telefon numarası yalnızca rakamlardan oluşmalıdır" aria-label="Telefon">
+  <button type="submit" id="startBtn">Devam</button>
+</form>
     <div class="qr-code">
       <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code">
     </div>
@@ -184,17 +222,79 @@ const telefon = sanitizeInput(document.getElementById('telefon').value.trim());
 }
   });
 
-  // Check for saved language preference in sessionStorage
-const savedLang = sessionStorage.get
+  // Dil çevirileri
+const popupTranslations = {
+  tr: {
+    title: "Detam Etkinliğine Hoş Geldiniz",
+    content: "Bu etkinlik, 5 soruluk bir İSG etkinliğidir. Tüm soruları doğru yanıtlayarak ödül kazanabilirsiniz!",
+    contentHeader: "Etkinlik İçeriği",
+    prizesHeader: "Ödüller",
+    prizes: ["Karabina", "Göz Ölçüm Testi", "Duyma Testi", "Kulak Tıkacı"],
+    close: "Tamam"
+  },
+  en: {
+    title: "Welcome to the Detam Event",
+    content: "This event is a 5-question OSHA activity. Answer all questions correctly to win a prize!",
+    contentHeader: "Event Details",
+    prizesHeader: "Prizes",
+    prizes: ["Carabiner", "Eye Measurement Test", "Hearing Test", "Earplugs"],
+    close: "Close"
+  }
+};
 
-document.addEventListener('DOMContentLoaded', () => {
-  const ad = sessionStorage.getItem('ad');
-  const email = sessionStorage.getItem('email');
-  const telefon = sessionStorage.getItem('telefon');
+// Popup elemanlarını seç
+const infoIcon = document.getElementById("infoIcon");
+const popup = document.getElementById("popup");
+const popupOverlay = document.getElementById("popupOverlay");
+const popupTitle = document.getElementById("popupTitle");
+const popupContentHeader = document.getElementById("popupContentHeader");
+const popupContent = document.getElementById("popupContent");
+const popupPrizesHeader = document.getElementById("popupPrizesHeader");
+const prizeList = document.getElementById("prizeList");
+const closePopup = document.getElementById("closePopup");
 
-  if (ad) document.getElementById('ad').value = ad;
-  if (email) document.getElementById('email').value = email;
-  if (telefon) document.getElementById('telefon').value = telefon;
+// Dil seçimini kontrol et ve popup içeriğini güncelle
+function updatePopupContent() {
+  const currentLang = sessionStorage.getItem("lang") || "tr";
+  const popupText = popupTranslations[currentLang];
+  popupTitle.textContent = popupText.title;
+  popupContentHeader.textContent = popupText.contentHeader;
+  popupContent.textContent = popupText.content;
+  popupPrizesHeader.textContent = popupText.prizesHeader;
+  prizeList.innerHTML = popupText.prizes.map(prize => `<li>${prize}</li>`).join("");
+  closePopup.textContent = popupText.close;
+}
+
+// Popup açma
+infoIcon.addEventListener("click", () => {
+  updatePopupContent(); // Dil seçimine göre içeriği güncelle
+  popup.style.display = "block";
+  popupOverlay.style.display = "block";
+});
+
+// Popup kapama
+closePopup.addEventListener("click", () => {
+  popup.style.display = "none";
+  popupOverlay.style.display = "none";
+});
+
+popupOverlay.addEventListener("click", () => {
+  popup.style.display = "none";
+  popupOverlay.style.display = "none";
+});
+
+// Dil değiştirildiğinde popup içeriğini güncelle
+languageToggle.addEventListener("change", () => {
+  const currentLang = languageToggle.checked ? "en" : "tr";
+  sessionStorage.setItem("lang", currentLang);
+  updatePopupContent(); // Popup içeriğini güncelle
+});
+
+// Sayfa yüklendiğinde dil seçimini kontrol et ve popup içeriğini güncelle
+document.addEventListener("DOMContentLoaded", () => {
+  const currentLang = sessionStorage.getItem("lang") || "tr";
+  languageToggle.checked = currentLang === "en";
+  updatePopupContent(); // Popup içeriğini güncelle
 });
   </script>
 </body>
