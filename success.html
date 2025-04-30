@@ -32,7 +32,7 @@
       window.location.href = 'index.html';
     };
 
-    // Eğer sayfa yenilendiyse veya session bilgisi eksikse index'e yönlendir
+    // Redirect to index if session data is missing
     const nav = performance.getEntriesByType("navigation")[0];
     if (nav && nav.type === "reload") {
       window.location.href = 'index.html';
@@ -42,11 +42,37 @@
         !sessionStorage.getItem('telefon')) {
       window.location.href = 'index.html';
     }
+
+    // Language preference
+    const lang = sessionStorage.getItem('lang') || 'tr';
+    const translations = {
+      tr: {
+        title: "Kazandınız!",
+        congrats: "Tebrikler! 🎉",
+        description: "5 sorudan 5'ini doğru yanıtladınız. Şimdi çarkı çevirerek ödülünüzü kazanın!",
+        spin: "Çevir!",
+        confirm: "Hediyemi Al",
+        prizes: ["Karabina", "Göz Ölçüm Testi", "Duyma Testi", "Kulak Tıkacı"],
+        resultPrefix: "Kazandığınız: ",
+      },
+      en: {
+        title: "You Won!",
+        congrats: "Congratulations! 🎉",
+        description: "You answered all 5 questions correctly. Spin the wheel to claim your prize!",
+        spin: "Spin!",
+        confirm: "Claim My Prize",
+        prizes: ["Carabiner", "Eye Measure. Test", "Hearing Test", "Earplugs"],
+        resultPrefix: "Your Prize: ",
+      }
+    };
+
+    const t = translations[lang];
+    document.title = t.title;
   </script>
 
   <img class="logo" src="detam.jpg" alt="Detam Logo" />
-  <h1>Tebrikler! 🎉</h1>
-  <p>5 sorudan 5'ini doğru yanıtladınız. Şimdi çarkı çevirerek ödülünüzü kazanın!</p>
+  <h1 id="congrats"></h1>
+  <p id="description"></p>
   <div style="position: relative; display: inline-block;">
     <canvas id="wheel" width="400" height="400"></canvas>
     <div id="pointer" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 48px; color: red;">
@@ -54,30 +80,35 @@
     </div>
   </div>
   <br>
-  <button id="spin">Çevir!</button>
+  <button id="spin"></button>
   <div id="result"></div>
   <br>
-  <button id="confirmButton">Hediyemi Al</button>
+  <button id="confirmButton"></button>
   <br>
   <div class="qr-code">
-    <p>Detaylı bilgi için QR kodu tarayın:</p>
     <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code" />
   </div>
   <script>
-    // Wheel çizimi ve döndürme
+    // Update text based on language
+    document.getElementById("congrats").textContent = t.congrats;
+    document.getElementById("description").textContent = t.description;
+    document.getElementById("spin").textContent = t.spin;
+    document.getElementById("confirmButton").textContent = t.confirm;
+
+    // Wheel drawing and spinning
     const canvas = document.getElementById("wheel");
     const ctx = canvas.getContext("2d");
     const w = canvas.width, h = canvas.height;
-    const centerX = w/2, centerY = h/2, radius = 180;
-    const segments = 4, degPer = 360/segments;
-    const colors  = ["#f44336", "#4CAF50", "#2196F3", "#FFEB3B"];
-    const prizes  = ["Karabina", "Göz Ölçüm Testi", "Duyma Testi", "Kulak Tıkacı"];
+    const centerX = w / 2, centerY = h / 2, radius = 180;
+    const segments = 4, degPer = 360 / segments;
+    const colors = ["#f44336", "#4CAF50", "#2196F3", "#FFEB3B"];
+    const prizes = t.prizes;
     let angle = 0, isSpun = false;
 
     function drawWheel() {
       for (let i = 0; i < segments; i++) {
         const start = (degPer * i) * Math.PI / 180;
-        const end   = (degPer * (i+1)) * Math.PI / 180;
+        const end = (degPer * (i + 1)) * Math.PI / 180;
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.arc(centerX, centerY, radius, start, end);
@@ -86,7 +117,7 @@
         ctx.stroke();
         ctx.save();
         ctx.translate(centerX, centerY);
-        ctx.rotate(start + (end - start)/2);
+        ctx.rotate(start + (end - start) / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#fff";
         ctx.font = "18px Arial";
@@ -102,14 +133,14 @@
       if (isSpun) return;
       isSpun = true;
       document.getElementById("result").textContent = "";
-      let rotation = Math.floor(Math.random()*360) + 1080;
+      let rotation = Math.floor(Math.random() * 360) + 1080;
       let current = 0;
       const interval = setInterval(() => {
         angle = (angle + 10) % 360;
-        ctx.clearRect(0,0,w,h);
+        ctx.clearRect(0, 0, w, h);
         ctx.save();
         ctx.translate(centerX, centerY);
-        ctx.rotate(angle * Math.PI/180);
+        ctx.rotate(angle * Math.PI / 180);
         ctx.translate(-centerX, -centerY);
         drawWheel();
         ctx.restore();
@@ -117,23 +148,23 @@
         if (current >= rotation) {
           clearInterval(interval);
           const final = angle % 360;
-          const adj   = (360 - final + 270) % 360;
-          const idx   = Math.floor(adj/degPer);
-          kazanan     = prizes[idx];
-          document.getElementById("result").textContent = "Kazandığınız: " + kazanan;
+          const adj = (360 - final + 270) % 360;
+          const idx = Math.floor(adj / degPer);
+          kazanan = prizes[idx];
+          document.getElementById("result").textContent = t.resultPrefix + kazanan;
           document.getElementById("confirmButton").style.display = "inline-block";
         }
       }, 20);
     });
 
-    // "Hediyemi Al" tıklandığında POST ve sonrasında yönlendirme
-    document.getElementById("confirmButton").addEventListener("click", async function() {
+    // "Claim My Prize" button functionality
+    document.getElementById("confirmButton").addEventListener("click", async function () {
       const btn = this;
       btn.disabled = true;
-      const ad    = sessionStorage.getItem('ad');
+      const ad = sessionStorage.getItem('ad');
       const email = sessionStorage.getItem('email');
-      const tel   = sessionStorage.getItem('telefon');
-      const odul  = kazanan;
+      const tel = sessionStorage.getItem('telefon');
+      const odul = kazanan;
 
       try {
         const res = await fetch('https://script.google.com/macros/s/AKfycbxEkcC6abIGwyjwqguW1po214L6_CqzCF5P4_HXAkkeIm6c77t5p36QPDALxiRpM7tmjA/exec', {
@@ -143,10 +174,8 @@
         });
         const msg = (await res.text()).trim();
         if (msg === 'OK') {
-          alert('Ödülünüzü kaydettik. detam.com.tr’ye yönlendiriliyorsunuz.');
-          // Clear sessionStorage to block re-access
+          alert(lang === 'en' ? 'Your prize has been recorded. Redirecting to detam.com.tr.' : 'Ödülünüzü kaydettik. detam.com.tr’ye yönlendiriliyorsunuz.');
           sessionStorage.clear();
-          // Use location.replace to override history
           setTimeout(() => window.location.replace('https://detam.com.tr'), 5000);
         } else {
           alert('Hata: ' + msg);

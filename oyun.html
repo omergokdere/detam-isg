@@ -11,12 +11,12 @@
         background-color: #F7F7F7;
       }
       .event-container {
-        background: #f7f7f7;
+        background: #F7F7F7;
         padding: 20px;
         border-radius: 8px;
-        max-width: 500px;
+        max-width: 400px;
         margin: 0 auto;
-        box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
         position: relative;
       }
       .logo {
@@ -75,10 +75,8 @@
       <div id="event"></div>
       <button onclick="submitEvent()">Gönder</button>
     </div>
-
-    <br /><br />
     <div class="qr-code">
-      <p>Detaylı bilgi için QR kodu tarayın:</p>
+      <p style="display: none;">Detaylı bilgi için QR kodu tarayın:</p>
       <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code" />
     </div>
 
