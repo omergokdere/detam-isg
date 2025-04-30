@@ -18,8 +18,34 @@
     }
     #confirmButton:hover { background: #218838; }
     #result { font-size: 24px; font-weight: bold; margin-top: 30px; color: green; }
-    .qr-code { margin-top: 20px; }
+    .qr-code {
+  margin-top: 30px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  display: inline-block;
+}
     .qr-code img { width: 150px; height: 150px; }
+    @media (max-width: 480px) {
+  canvas {
+    width: 300px;
+    height: 300px;
+  }
+  #spin, #confirmButton {
+    font-size: 16px;
+    padding: 8px 16px;
+  }
+  #result {
+    font-size: 20px;
+  }
+}
+#spin, #confirmButton {
+  transition: transform 0.2s ease;
+}
+#spin:hover, #confirmButton:hover {
+  transform: scale(1.05);
+}
   </style>
 </head>
 <body>
@@ -28,8 +54,11 @@
     // Block back navigation
     window.history.pushState(null, '', window.location.href);
     window.onpopstate = function () {
-      window.history.pushState(null, '', window.location.href);
-      window.location.href = 'index.html';
+      if (confirm(lang === 'en' ? 'Are you sure you want to leave this page?' : 'Bu sayfadan çıkmak istediğinize emin misiniz?')) {
+        window.location.href = 'index.html';
+      } else {
+        window.history.pushState(null, '', window.location.href);
+      }
     };
 
     // Redirect to index if session data is missing
@@ -37,9 +66,8 @@
     if (nav && nav.type === "reload") {
       window.location.href = 'index.html';
     }
-    if (!sessionStorage.getItem('ad') ||
-        !sessionStorage.getItem('email') ||
-        !sessionStorage.getItem('telefon')) {
+    if (!sessionStorage.getItem('ad') || !sessionStorage.getItem('email') || !sessionStorage.getItem('telefon')) {
+      alert(lang === 'en' ? 'Session expired. Redirecting to the homepage.' : 'Oturum süresi doldu. Ana sayfaya yönlendiriliyorsunuz.');
       window.location.href = 'index.html';
     }
 
@@ -75,15 +103,15 @@
   <p id="description"></p>
   <div style="position: relative; display: inline-block;">
     <canvas id="wheel" width="400" height="400"></canvas>
-    <div id="pointer" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 48px; color: red;">
+    <div id="pointer" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 48px; color: rgb(3, 0, 0);">
       🢃
     </div>
   </div>
   <br>
-  <button id="spin"></button>
+  <button id="spin" aria-label="Spin the wheel">Spin!</button>
   <div id="result"></div>
   <br>
-  <button id="confirmButton"></button>
+  <button id="confirmButton" aria-label="Claim your prize" style="display: none;">Claim My Prize</button>
   <br>
   <div class="qr-code">
     <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://www.detam.com.tr/&size=150x150" alt="QR Code" />
@@ -125,19 +153,19 @@
         ctx.restore();
       }
     }
-    drawWheel();
 
-    let kazanan; // global scope
+    drawWheel();
 
     document.getElementById("spin").addEventListener("click", () => {
       if (isSpun) return;
       isSpun = true;
       document.getElementById("result").textContent = "";
-      let rotation = Math.floor(Math.random() * 360) + 1080;
+      let rotation = Math.floor(Math.random() * 360) + 1080; // Random spin with at least 3 full rotations
       let current = 0;
+
       const interval = setInterval(() => {
-        angle = (angle + 10) % 360;
-        ctx.clearRect(0, 0, w, h);
+        angle = (angle + 10) % 360; // Increment angle
+        ctx.clearRect(0, 0, w, h); // Clear canvas
         ctx.save();
         ctx.translate(centerX, centerY);
         ctx.rotate(angle * Math.PI / 180);
@@ -145,10 +173,11 @@
         drawWheel();
         ctx.restore();
         current += 10;
+
         if (current >= rotation) {
           clearInterval(interval);
           const final = angle % 360;
-          const adj = (360 - final + 270) % 360;
+          const adj = (360 - final + 270) % 360; // Adjust for pointer position
           const idx = Math.floor(adj / degPer);
           kazanan = prizes[idx];
           document.getElementById("result").textContent = t.resultPrefix + kazanan;
@@ -156,36 +185,51 @@
         }
       }, 20);
     });
-
-    // "Claim My Prize" button functionality
     document.getElementById("confirmButton").addEventListener("click", async function () {
-      const btn = this;
-      btn.disabled = true;
-      const ad = sessionStorage.getItem('ad');
-      const email = sessionStorage.getItem('email');
-      const tel = sessionStorage.getItem('telefon');
-      const odul = kazanan;
+  const btn = this;
+  btn.disabled = true; // Disable the button to prevent multiple submissions
+  btn.textContent = lang === 'en' ? 'Processing...' : 'İşleniyor...';
 
-      try {
-        const res = await fetch('https://script.google.com/macros/s/AKfycbxEkcC6abIGwyjwqguW1po214L6_CqzCF5P4_HXAkkeIm6c77t5p36QPDALxiRpM7tmjA/exec', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({ adSoyad: ad, email: email, telefon: tel, odul: odul })
-        });
-        const msg = (await res.text()).trim();
-        if (msg === 'OK') {
-          alert(lang === 'en' ? 'Your prize has been recorded. Redirecting to detam.com.tr.' : 'Ödülünüzü kaydettik. detam.com.tr’ye yönlendiriliyorsunuz.');
-          sessionStorage.clear();
-          setTimeout(() => window.location.replace('https://detam.com.tr'), 5000);
-        } else {
-          alert('Hata: ' + msg);
-          btn.disabled = false;
-        }
-      } catch (error) {
-        alert('Bir hata oluştu: ' + error);
-        btn.disabled = false;
-      }
+  const ad = sessionStorage.getItem('ad');
+  const email = sessionStorage.getItem('email');
+  const telefon = sessionStorage.getItem('telefon');
+  const odul = kazanan; // The prize determined by the wheel
+
+  if (!ad || !email || !telefon || !odul) {
+    alert(lang === 'en' ? 'Missing session data. Please try again.' : 'Oturum verileri eksik. Lütfen tekrar deneyin.');
+    btn.disabled = false;
+    btn.textContent = lang === 'en' ? 'Claim My Prize' : 'Hediyemi Al';
+    return;
+  }
+
+  try {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbxEkcC6abIGwyjwqguW1po214L6_CqzCF5P4_HXAkkeIm6c77t5p36QPDALxiRpM7tmjA/exec', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        adSoyad: ad,
+        email: email,
+        telefon: telefon,
+        odul: odul
+      })
     });
+
+    const result = await response.text();
+    if (result.trim() === 'OK') {
+      alert(lang === 'en' ? 'Your prize has been recorded. Redirecting to detam.com.tr.' : 'Ödülünüz kaydedildi. detam.com.tr’ye yönlendiriliyorsunuz.');
+      sessionStorage.clear(); // Clear session data
+      setTimeout(() => window.location.replace('https://www.detam.com.tr'), 5000); // Redirect after 5 seconds
+    } else {
+      alert(lang === 'en' ? `Error: ${result}` : `Hata: ${result}`);
+      btn.disabled = false;
+      btn.textContent = lang === 'en' ? 'Claim My Prize' : 'Hediyemi Al';
+    }
+  } catch (error) {
+    alert(lang === 'en' ? `An error occurred: ${error}` : `Bir hata oluştu: ${error}`);
+    btn.disabled = false;
+    btn.textContent = lang === 'en' ? 'Claim My Prize' : 'Hediyemi Al';
+  }
+});
   </script>
 </body>
 </html>
